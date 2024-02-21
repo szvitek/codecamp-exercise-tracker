@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { schema: exerciseSchema } = require('./exercise');
 const { Schema } = mongoose;
 
 const userSchema = new Schema(
@@ -8,6 +9,7 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
+    log: [exerciseSchema],
   },
   { versionKey: false }
 );
