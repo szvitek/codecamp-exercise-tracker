@@ -3,6 +3,10 @@ const router = express.Router();
 const Users = require('../models/user');
 const { model: Exercise } = require('../models/exercise');
 
+// todo: refactor try/catch blocks
+// todo: abstract find/validate user
+// todo: better error handling
+
 router.get('/', async (req, res) => {
   try {
     const users = await Users.find({}, '-log');
@@ -78,7 +82,58 @@ router.post('/:id/exercises', async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.json({
-      error: error.message || 'error',
+      error: error.message || 'error creating exercise',
+    });
+  }
+});
+
+router.get('/:id/logs', async (req, res) => {
+  try {
+    const { from, to, limit = 0 } = req.query;
+    const userId = req.params.id;
+    const user = await Users.findById(userId);
+
+    if (!user) {
+      return res.json({
+        error: 'invalid user',
+      });
+    }
+
+    const dateFilter = {};
+    if (from) {
+      dateFilter['$gte'] = new Date(from);
+    }
+    if (to) {
+      dateFilter['$lte'] = new Date(to);
+    }
+
+    const filter = {
+      userId: user._id,
+    };
+
+    if (from || to) {
+      filter.rawDate = dateFilter;
+    }
+
+    const exercises = await Exercise.find(filter)
+      .sort({ rawDate: 'asc' })
+      .limit(+limit);
+    const logs = exercises.map(({ description, duration, date }) => ({
+      description,
+      duration,
+      date,
+    }));
+
+    return res.json({
+      _id: user._id,
+      username: user.username,
+      count: exercises.length,
+      logs,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      error: error.message || 'error getting logs',
     });
   }
 });

@@ -11,7 +11,11 @@ const exerciseSchema = new Schema(
     duration: { type: Number, required: true },
     rawDate: { type: Date, required: true },
   },
-  { versionKey: false }
+  {
+    versionKey: false,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
 );
 
 exerciseSchema.virtual('date').get(function () {
