@@ -118,7 +118,7 @@ router.get('/:id/logs', async (req, res) => {
     const exercises = await Exercise.find(filter)
       .sort({ rawDate: 'asc' })
       .limit(+limit);
-    const logs = exercises.map(({ description, duration, date }) => ({
+    const log = exercises.map(({ description, duration, date }) => ({
       description,
       duration,
       date,
@@ -128,7 +128,7 @@ router.get('/:id/logs', async (req, res) => {
       _id: user._id,
       username: user.username,
       count: exercises.length,
-      logs,
+      log,
     });
   } catch (error) {
     console.error(error);
