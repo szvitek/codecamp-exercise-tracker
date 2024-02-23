@@ -1,26 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const Users = require('../models/user');
+const asyncHandler = require('express-async-handler');
 const { model: Exercise } = require('../models/exercise');
 
-// todo: refactor try/catch blocks
 // todo: abstract find/validate user
-// todo: better error handling
+// todo: create controllers
+// todo: logging/debuging?
 
-router.get('/', async (req, res) => {
-  try {
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
     const users = await Users.find({}, '-log');
     return res.json(users);
-  } catch (error) {
-    console.error(error);
-    return res.json({
-      error: error.message || 'error',
-    });
-  }
-});
+  })
+);
 
-router.post('/', async (req, res) => {
-  try {
+router.post(
+  '/',
+  asyncHandler(async (req, res) => {
     const { username } = req.body;
     if (!username) {
       return res.json({
@@ -42,16 +40,12 @@ router.post('/', async (req, res) => {
       _id: user._id,
       username: user.username,
     });
-  } catch (error) {
-    console.error(error);
-    return res.json({
-      error: error.message || 'error creating user',
-    });
-  }
-});
+  })
+);
 
-router.post('/:id/exercises', async (req, res) => {
-  try {
+router.post(
+  '/:id/exercises',
+  asyncHandler(async (req, res) => {
     const userId = req.params.id;
     const { description, duration, date } = req.body;
 
@@ -79,16 +73,12 @@ router.post('/:id/exercises', async (req, res) => {
       date: exercice.date,
       _id: user._id,
     });
-  } catch (error) {
-    console.error(error);
-    return res.json({
-      error: error.message || 'error creating exercise',
-    });
-  }
-});
+  })
+);
 
-router.get('/:id/logs', async (req, res) => {
-  try {
+router.get(
+  '/:id/logs',
+  asyncHandler(async (req, res) => {
     const { from, to, limit = 0 } = req.query;
     const userId = req.params.id;
     const user = await Users.findById(userId);
@@ -130,12 +120,7 @@ router.get('/:id/logs', async (req, res) => {
       count: exercises.length,
       log,
     });
-  } catch (error) {
-    console.error(error);
-    return res.json({
-      error: error.message || 'error getting logs',
-    });
-  }
-});
+  })
+);
 
 module.exports = router;
