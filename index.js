@@ -28,7 +28,15 @@ app.use(function (err, req, res, next) {
     console.error(err);
   }
 
-  // render the error page
+  // handle validation errors
+  if (err.errors) {
+    res.status(err.status || 400);
+    return res.json({
+      errors: err.errors,
+    });
+  }
+
+  // return the error
   res.status(err.status || 500);
   res.json({
     error: err.message || 'error',
